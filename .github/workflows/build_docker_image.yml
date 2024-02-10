@@ -121,7 +121,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ secrets.DOCKER_USERNAME }}:latest
           labels: ${{ steps.meta.outputs.labels }}
           no-cache: true
 
