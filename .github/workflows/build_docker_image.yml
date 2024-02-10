@@ -121,7 +121,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/qinglong:latest
           labels: ${{ steps.meta.outputs.labels }}
           no-cache: true
 
