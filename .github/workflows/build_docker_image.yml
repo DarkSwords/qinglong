@@ -123,73 +123,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/qinglong:cache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/qinglong:cache,mode=max
+          no-cache: true
 
       - name: Image digest
         run: |
           echo ${{ steps.docker_build.outputs.digest }}
-  
-  build310:
-    if: ${{ github.ref_name == 'master' }}
-    needs: build-static
-
-    runs-on: ubuntu-20.04
-
-    permissions:
-      packages: write
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: "8.3.1"
-      - uses: actions/setup-node@v4
-        with:
-          cache: "pnpm"
-
-      - name: Setup timezone
-        uses: szenius/set-timezone@v1.2
-        with:
-          timezoneLinux: Asia/Shanghai
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push python3.10
-        id: docker_build_310
-        uses: docker/build-push-action@v5
-        with:
-          build-args: |
-            MAINTAINER=${{ github.repository_owner }}
-            QL_BRANCH=${{ github.ref_name }}
-            SOURCE_COMMIT=${{ github.sha }}
-          network: host
-          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x,linux/386
-          context: .
-          file: ./docker/310.Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/qinglong:python3.10
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/qinglong:cache-python3.10
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/qinglong:cache-python3.10,mode=max
-
-      - name: Image digest
-        run: |
-          echo ${{ steps.docker_build_310.outputs.digest }}
